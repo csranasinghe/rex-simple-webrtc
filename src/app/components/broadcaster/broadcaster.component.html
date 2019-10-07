@@ -1,0 +1,7 @@
+<div>
+  <video #localVideo id="localVideo" width="720" height="480" controls autoplay></video>
+
+  <button (click)="startBroadcast()" [disabled]="callActive">Start Broadcat</button>
+  <button (click)="stopBroadcast()" [disabled]="!callActive">Stop Broadcat</button>
+  <p #error id="error" style="color:red"></p>
+</div>
