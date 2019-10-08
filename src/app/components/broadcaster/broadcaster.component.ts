@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as uuid from 'uuid';
-import { Socket } from 'ngx-socket-io';
+import * as io from 'socket.io-client'
 import { SignalingService } from '../../services/signaling.service';
 
 declare let RTCPeerConnection: any;
@@ -15,6 +15,7 @@ export class BroadcasterComponent implements OnInit {
   callActive: boolean = false;
   senderId: string;
   localVideoStream: any;
+  socket: any;
 
   @ViewChild("localVideo")
   public localVideo: ElementRef;
@@ -22,14 +23,13 @@ export class BroadcasterComponent implements OnInit {
   @ViewChild("error")
   public errorText: ElementRef;
 
-  constructor(private socket: SignalingService) { }
+  constructor(private signalingService: SignalingService) { }
 
   ngOnInit() {
-
   }
 
 
-  public ngAfterViewInit() {
+  ngAfterViewInit() {
     this.setupWebRtc();
   }
 
@@ -53,6 +53,9 @@ export class BroadcasterComponent implements OnInit {
       console.log('Stream Ended');
     }
     this.showMe();
+
+    this.signalingService.joinRoom("abcd", "chamath");
+
   }
 
 
@@ -86,7 +89,6 @@ export class BroadcasterComponent implements OnInit {
   public startBroadcast() {
     console.log("Start  broadcast.");
     this.setupWebRtc();
-    this.socket.joinChannel("chamath");
   }
 
 }
