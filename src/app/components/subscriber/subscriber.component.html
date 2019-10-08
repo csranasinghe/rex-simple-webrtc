@@ -1,10 +1,7 @@
 <div>
   <video #remoteVideo id="remoteVideo" width="720" height="480" controls autoplay></video>
 
-  <button mat-raised-button color="primary" (click)="joinRoom()" [disabled]="callActive">Connect</button>
-  <button mat-raised-button color="warn" (click)="leaveRoom()" [disabled]="!callActive">Disconnect</button>
-  <p #error id="error" style="color:red">{{ signalingService.connected }}</p>
-
-
+  <button mat-raised-button color="primary" (click)="joinRoom()" [disabled]="connected == 'connected'">Connect</button>
+  <button mat-raised-button color="warn" (click)="leaveRoom()" [disabled]="connected == 'disconnected'">Disconnect</button>
 
 </div>

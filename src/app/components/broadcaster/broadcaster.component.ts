@@ -34,7 +34,7 @@ export class BroadcasterComponent implements OnInit {
   }
 
   public setupWebRtc() {
-    this.senderId = uuid.v4();
+
     try {
       this.pc = new RTCPeerConnection({
         iceServers: [
@@ -45,6 +45,8 @@ export class BroadcasterComponent implements OnInit {
     } catch (error) {
       console.log(error);
     }
+
+
     this.pc.onicecandidate = event => {
       event.candidate ? this.socket.sendMessage(JSON.stringify({ ice: event.candidate })) : console.log("Sent All Ice");
     }
@@ -52,9 +54,12 @@ export class BroadcasterComponent implements OnInit {
     this.pc.onremovestream = event => {
       console.log('Stream Ended');
     }
-    this.showMe();
 
-    this.signalingService.joinRoom("abcd", "chamath");
+    this.signalingService.RTCPeerConnection = this.pc;
+    this.signalingService.user = "chamath";
+    this.showMe();
+    this.joinRoom();
+
 
   }
 
@@ -83,12 +88,26 @@ export class BroadcasterComponent implements OnInit {
       tracks[i].stop();
     }
     this.callActive = false;
+    this.leaveRoom();
     console.log("Stop broadcast.");
   }
 
-  public startBroadcast() {
+  startBroadcast() {
     console.log("Start  broadcast.");
     this.setupWebRtc();
+  }
+
+  leaveRoom() {
+    this.signalingService.leaveRoom("abcd", "chamath");
+  }
+
+  joinRoom() {
+    this.signalingService.joinRoom("abcd", "chamath");
+  }
+
+  ngOnDestroy() {
+    // prevent memory leak when component is destroyed
+    this.leaveRoom();
   }
 
 }
