@@ -28,7 +28,8 @@ export class SignalingService {
           this._connected.next(data.status);
           console.log("Joinroom recieved: " + JSON.stringify(data));
           if (this.user == "chathu") {
-            console.log("sdfsdfdfs");
+            this.RTCPeerConnection.addTransceiver("audio");
+            this.RTCPeerConnection.addTransceiver("video");
             this.RTCPeerConnection.createOffer().then(offer => {
               this.RTCPeerConnection.setLocalDescription(offer);
               this.socket.emit('message', JSON.stringify({ type: "offer", 'offer': { userid: "chamath", data: offer }, msg: { user_id: "chathu" } }));
@@ -42,14 +43,13 @@ export class SignalingService {
           console.log("Leaveroom recieved: " + JSON.stringify(data));
           break;
         case "offer":
-          console.log(data);
           this.offer = data.offer.data;
           if (this.user == "chamath") {
             this.RTCPeerConnection.setRemoteDescription(new RTCSessionDescription(this.offer)).then(() => {
               this.RTCPeerConnection.createAnswer().then(answer => {
                 this.RTCPeerConnection.setLocalDescription(new RTCSessionDescription(answer)).then;
                 this.socket.emit('message', JSON.stringify({ type: "answer", answer: { userid: "chathu", data: answer }, msg: { user_id: "chamath" } }));
-                console.log("Answer sent to: chathu");
+                console.log("Answer sent.");
               });
             })
           }
@@ -57,9 +57,15 @@ export class SignalingService {
         case "answer":
           this.answer = data.answer.data;
           this.RTCPeerConnection.setRemoteDescription(new RTCSessionDescription(this.answer));
-          console.log("Answer recieved: " + JSON.stringify(data));
+          console.log("Answer recieved");
           break;
+        case "icecandidate":
+          console.log("Ice recieved");
+          let candidate = JSON.parse(data.candidate);
+          console.log(candidate.ice);
+          this.RTCPeerConnection.addIceCandidate(new RTCIceCandidate(candidate.ice));
 
+          break;
         default:
           console.log("Error msg: " + JSON.stringify(data));
       }
@@ -78,5 +84,9 @@ export class SignalingService {
   }
 
 
+  sendCandidates(roomName: string, msg: string) {
+    this.socket.emit('message', JSON.stringify({ type: "icecandidate", candidate: msg }));
+    console.log("Ice candidates are sent by" + JSON.stringify(this.user));
+  }
 
 }

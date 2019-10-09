@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { SignalingService } from '../../services/signaling.service';
 import { Subscription } from 'rxjs';
 
@@ -13,6 +13,9 @@ export class SubscriberComponent implements OnInit {
   pc: any;
   connected: string;
   subscription: Subscription;
+
+  @ViewChild("remoteVideo")
+  public remoteVideo: ElementRef;
   constructor(private signalingService: SignalingService) { }
 
   ngOnInit() {
@@ -36,9 +39,16 @@ export class SubscriberComponent implements OnInit {
       console.log(error);
     }
 
-    this.signalingService.RTCPeerConnection = this.pc;
-    this.signalingService.user = "chathu";
 
+    this.signalingService.user = "chathu";
+    this.pc.onicecandidate = event => {
+      event.candidate ? this.signalingService.sendCandidates("abcd", JSON.stringify({ ice: event.candidate })) : console.log("Sent All Ice");
+    }
+    this.pc.ontrack = event =>
+      (this.remoteVideo.nativeElement.srcObject = event.streams[0]); // use ontrack
+
+
+    this.signalingService.RTCPeerConnection = this.pc;
 
   }
 

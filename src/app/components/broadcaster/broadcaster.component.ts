@@ -47,16 +47,30 @@ export class BroadcasterComponent implements OnInit {
     }
 
 
-    this.pc.onicecandidate = event => {
-      event.candidate ? this.socket.sendMessage(JSON.stringify({ ice: event.candidate })) : console.log("Sent All Ice");
-    }
 
     this.pc.onremovestream = event => {
       console.log('Stream Ended');
     }
 
-    this.signalingService.RTCPeerConnection = this.pc;
+    // this.pc.ontrack = ev => {
+    //   if (ev.streams && ev.streams[0]) {
+    //     this.localVideo.nativeElement.srcObject = ev.streams[0];
+    //   } else {
+    //     let inboundStream = new MediaStream(ev.track);
+    //     this.localVideo.nativeElement.srcObject = inboundStream;
+    //   }
+
+    // }
+
+
     this.signalingService.user = "chamath";
+
+    this.pc.onicecandidate = event => {
+      event.candidate ? this.signalingService.sendCandidates("abcd", JSON.stringify({ ice: event.candidate })) : console.log("Sent All Ice");
+    }
+
+    this.signalingService.RTCPeerConnection = this.pc;
+
     this.showMe();
     this.joinRoom();
 
@@ -71,6 +85,10 @@ export class BroadcasterComponent implements OnInit {
           this.localVideoStream = stream;
           this.localVideo.nativeElement.srcObject = stream;
           this.callActive = true;
+
+          for (let track of stream.getTracks()) {
+            this.pc.addTrack(track, stream);
+          }
         })
         .catch(err => {
           this.errorText.nativeElement.html = "Error while getting user media";
