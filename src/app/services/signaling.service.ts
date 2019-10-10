@@ -18,7 +18,7 @@ export class SignalingService {
 
 
   constructor() {
-    this.socket = io("http://localhost:8888");
+    this.socket = io("https://rex-signalling-server.herokuapp.com");
     this.socket.on('message', (message) => {
       console.log("Message sent by: " + this.socket.id);
       let data = message;
