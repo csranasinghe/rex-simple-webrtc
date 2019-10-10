@@ -23,7 +23,7 @@ export class SubscriberComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.setupWebrtc();
+
   }
 
   setupWebrtc() {
@@ -47,12 +47,17 @@ export class SubscriberComponent implements OnInit {
     this.pc.ontrack = event =>
       (this.remoteVideo.nativeElement.srcObject = event.streams[0]); // use ontrack
 
+    this.pc.onremovestream = event => {
+      alert('Stream Ended');
+      console.log('Stream Ended');
+    }
 
     this.signalingService.RTCPeerConnection = this.pc;
 
   }
 
   joinRoom() {
+    this.setupWebrtc();
     this.signalingService.joinRoom("abcd", "chathu");
 
   }

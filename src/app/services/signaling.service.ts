@@ -40,7 +40,14 @@ export class SignalingService {
           break;
         case "leaveRoom":
           this._connected.next(data.status);
-          console.log("Leaveroom recieved: " + JSON.stringify(data));
+          if (this.user != "chamath") {
+            // let senders = this.RTCPeerConnection.getSenders();
+            // for (let i = 0; i < senders.length; i++) {
+            //   this.RTCPeerConnection.removeTrack(senders[i]);
+            // }
+            this.RTCPeerConnection.close();
+            console.log("Leaveroom recieved: " + JSON.stringify(data));
+          }
           break;
         case "offer":
           this.offer = data.offer.data;
@@ -62,9 +69,7 @@ export class SignalingService {
         case "icecandidate":
           console.log("Ice recieved");
           let candidate = JSON.parse(data.candidate);
-          console.log(candidate.ice);
           this.RTCPeerConnection.addIceCandidate(new RTCIceCandidate(candidate.ice));
-
           break;
         default:
           console.log("Error msg: " + JSON.stringify(data));
@@ -79,7 +84,6 @@ export class SignalingService {
 
   leaveRoom(roomName: string, userId: string) {
     this.socket.emit('message', JSON.stringify({ type: "leaveRoom", msg: { user_id: userId } }));
-
     console.log("leaveRoom request sent by: " + userId + " to leave room " + roomName);
   }
 

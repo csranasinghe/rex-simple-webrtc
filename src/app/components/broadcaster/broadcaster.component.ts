@@ -30,7 +30,7 @@ export class BroadcasterComponent implements OnInit {
 
 
   ngAfterViewInit() {
-    this.setupWebRtc();
+
   }
 
   public setupWebRtc() {
@@ -100,13 +100,20 @@ export class BroadcasterComponent implements OnInit {
   }
 
   stopBroadcast() {
-    this.pc.close();
-    let tracks = this.localVideoStream.getTracks();
-    for (let i = 0; i < tracks.length; i++) {
-      tracks[i].stop();
-    }
-    this.callActive = false;
+
     this.leaveRoom();
+
+
+    let senders = this.pc.getSenders();
+    for (let i = 0; i < senders.length; i++) {
+      this.pc.removeTrack(senders[i]);
+    }
+
+    this.localVideo.nativeElement.srcObject = null;
+
+    this.pc.close();
+    this.callActive = false;
+
     console.log("Stop broadcast.");
   }
 
