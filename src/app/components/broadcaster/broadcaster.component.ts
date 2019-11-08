@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as uuid from 'uuid';
 import * as io from 'socket.io-client'
 import { SignalingService } from '../../services/signaling.service';
+import { MediaHandler } from '../../webrtc-connector/classes/media-handler';
 
 declare let RTCPeerConnection: any;
 
@@ -70,33 +71,13 @@ export class BroadcasterComponent implements OnInit {
     }
 
     this.signalingService.RTCPeerConnection = this.pc;
-
-    this.showMe();
     this.joinRoom();
-
-
   }
 
-
-  showMe() {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-        .then(stream => {
-          this.localVideoStream = stream;
-          this.localVideo.nativeElement.srcObject = stream;
-          this.callActive = true;
-
-          for (let track of stream.getTracks()) {
-            this.pc.addTrack(track, stream);
-          }
-        })
-        .catch(err => {
-          this.errorText.nativeElement.html = "Error while getting user media";
-        });
-    } else {
-
-      this.errorText.nativeElement.html = "Error while getting user media";
-    }
+  async showMe() {
+    let mediaHandler = new MediaHandler();
+    let l = await mediaHandler.init(); // wait until initialization finishes. Since this is a async function
+    console.log(await mediaHandler.getStream());
   }
 
   stopBroadcast() {
@@ -119,7 +100,8 @@ export class BroadcasterComponent implements OnInit {
 
   startBroadcast() {
     console.log("Start  broadcast.");
-    this.setupWebRtc();
+    this.showMe();
+    //this.setupWebRtc();
   }
 
   leaveRoom() {
